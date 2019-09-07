@@ -1,6 +1,6 @@
 class Memory {
   constructor() {
-    this.memory = new Float64Array(1024);
+    this.memory = new Float64Array(32);
     this.head = 0;
   }
 

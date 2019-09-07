@@ -3,7 +3,22 @@ let Memory = require("./memory");
 class Array {
     constructor() {
         this.length = 0;
-        this.ptr = Memory.allocate(this.length.bind(this));
+        this.memory = new Memory;
+        this.ptr = this.memory.allocate(this.length);
+    }
+
+    print() {
+        // Create a temp arr var
+        let tempArr = [];
+        // Iterate through the current array memory assigning current value to temp arr var
+        // Stop when you've reached arr.length
+        for (let i = 0; i < this.length; i++) {
+            tempArr[i] = this.memory.memory[i];
+        }
+        // Return temp arr var
+        console.log(this.memory);
+        console.log(tempArr);
+        
     }
 
     push(value) {
@@ -11,18 +26,20 @@ class Array {
             this._resize((this.length + 1) * Array.SIZE_RATIO);
         }
 
-        Memory.set(this.ptr + this.length, value);
+        this.memory.set(this.ptr + this.length, value);
+        // console.log(Memory.this.memory);
+        
         this.length++;
     }
 
     _resize(size) {
         const oldPtr = this.ptr;
-        this.ptr = Memory.allocate(size);
+        this.ptr = this.memory.allocate(size);
         if (this.ptr === null) {
-            throw new Error('Out of Memory');
+            throw new Error('Out of memory');
         }
-        Memory.copy(this.ptr, oldPtr, this.length);
-        Memory.free(oldPtr);
+        this.memory.copy(this.ptr, oldPtr, this.length);
+        this.memory.free(oldPtr);
         this._capacity = size;
     }
 
@@ -30,14 +47,14 @@ class Array {
         if (index < 0 || index >= this.length) {
             throw new Error('Index error');
         }
-        return Memory.get(this.ptr + index);
+        return this.memory.get(this.ptr + index);
     }
 
     pop() {
         if (this.length == 0) {
             throw new Error('Index error');
         }
-        const value = Memory.get(this.ptr + this.length - 1);
+        const value = this.memory.get(this.ptr + this.length - 1);
         this.length--;
         return value;
     }
@@ -51,8 +68,8 @@ class Array {
             this._resize((this.length + 1) * Array.SIZE_RATIO);
         }
 
-        Memory.copy(this.ptr + index + 1, this.ptr + index, this.length - index);
-        Memory.set(this.ptr + index, value);
+        this.memory.copy(this.ptr + index + 1, this.ptr + index, this.length - index);
+        this.memory.set(this.ptr + index, value);
         this.length++;
     }
 
@@ -60,7 +77,7 @@ class Array {
         if (index < 0 || index >= this.length) {
             throw new Error('Index error');
         }
-        Memory.copy(this.ptr + index, this.ptr + index + 1, this.length - index - 1);
+        this.memory.copy(this.ptr + index, this.ptr + index + 1, this.length - index - 1);
         this.length--;
     }
 
